@@ -19,6 +19,7 @@
 - 新增 GoReleaser 配置，为 GitHub Releases 做准备
 - README 新增从 GitHub Release 下载安装的说明
 - GoReleaser 新增默认发行说明模板，用于后续自动生成更完整的 Release 正文
+- README 删除 npm 安装计划，只保留 GitHub Release 和 Homebrew 方向
 
 ## [v0.1.0] - 2026-03-27
 

@@ -98,12 +98,6 @@ aic
 
 ## 计划支持的安装方式
 
-### npm
-
-```bash
-npm install -g aic
-```
-
 ### Homebrew
 
 ```bash
