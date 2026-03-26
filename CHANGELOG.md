@@ -10,6 +10,8 @@
 
 ## [Unreleased]
 
+## [v0.1.1] - 2026-03-27
+
 ### Added
 
 - 新增 `aic --version`，支持输出版本号、提交哈希和构建时间
@@ -22,6 +24,12 @@
 - README 删除 npm 安装计划，只保留 GitHub Release 和 Homebrew 方向
 - README 将 Homebrew 调整为已支持的正式安装方式
 - GoReleaser 新增 `brews` 配置，为后续自动更新 `homebrew-tap` 做准备
+
+### Changed
+
+- `aic --version` 输出改为更简洁的 `aic <version>` 形式
+- `aic -version` 现在也会正确输出版本信息，不再误进入主程序
+- README 新增 `aic` 自身更新说明，明确区分 Homebrew 用户与手动下载用户的更新方式
 
 ## [v0.1.0] - 2026-03-27
 
