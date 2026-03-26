@@ -1,4 +1,6 @@
 .DS_Store
 .gocache/
+.gomodcache/
 aic
-
+bin/
+dist/

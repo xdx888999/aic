@@ -7,9 +7,15 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/xdx888999/aic/internal/i18n"
 	"github.com/xdx888999/aic/internal/tui"
+	"github.com/xdx888999/aic/internal/version"
 )
 
 func main() {
+	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
+		fmt.Println(version.String())
+		return
+	}
+
 	locale := i18n.DefaultLocale()
 	localizer := i18n.NewLocalizer(locale)
 	p := tea.NewProgram(tui.NewWithLocale(locale), tea.WithAltScreen())
