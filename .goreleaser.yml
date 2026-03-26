@@ -39,6 +39,28 @@ archives:
 checksum:
   name_template: checksums.txt
 
+brews:
+  - name: aic
+    repository:
+      owner: xdx888999
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: https://github.com/xdx888999/aic
+    description: Terminal AI CLI tool manager
+    license: MIT
+    directory: Formula
+    commit_author:
+      name: github-actions[bot]
+      email: 41898282+github-actions[bot]@users.noreply.github.com
+    install: |
+      bin.install "aic"
+    test: |
+      assert_match version.to_s, shell_output("#{bin}/aic --version")
+    url_template: "https://github.com/xdx888999/aic/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    skip_upload: auto
+    commit_msg_template: "Update aic to {{ .Tag }}"
+
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
 

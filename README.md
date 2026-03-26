@@ -73,7 +73,20 @@ mv aic /usr/local/bin/aic
 aic
 ```
 
-### 方式二：源码本地安装
+### 方式二：通过 Homebrew 安装
+
+```bash
+brew tap xdx888999/homebrew-tap
+brew install xdx888999/homebrew-tap/aic
+```
+
+安装完成后即可直接运行：
+
+```bash
+aic
+```
+
+### 方式三：源码本地安装
 
 目前也可以通过源码本地安装：
 
@@ -95,20 +108,6 @@ aic
 ```
 
 前提是该目录已经加入 `PATH`。
-
-## 计划支持的安装方式
-
-### Homebrew
-
-```bash
-brew install aic
-```
-
-### 独立 CLI 发布
-
-- 下载预编译二进制
-- 放入 `PATH`
-- 直接通过 `aic` 启动
 
 ## 常用操作
 

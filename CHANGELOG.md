@@ -20,6 +20,8 @@
 - README 新增从 GitHub Release 下载安装的说明
 - GoReleaser 新增默认发行说明模板，用于后续自动生成更完整的 Release 正文
 - README 删除 npm 安装计划，只保留 GitHub Release 和 Homebrew 方向
+- README 将 Homebrew 调整为已支持的正式安装方式
+- GoReleaser 新增 `brews` 配置，为后续自动更新 `homebrew-tap` 做准备
 
 ## [v0.1.0] - 2026-03-27
 
