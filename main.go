@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
+	if len(os.Args) > 1 && isVersionFlag(os.Args[1]) {
 		fmt.Println(version.String())
 		return
 	}
@@ -23,4 +23,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, localizer.Text("stderr_error"), err)
 		os.Exit(1)
 	}
+}
+
+func isVersionFlag(arg string) bool {
+	return arg == "--version" || arg == "-version" || arg == "-v"
 }
