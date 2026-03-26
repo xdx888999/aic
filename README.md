@@ -46,9 +46,36 @@ aic
 
 无论是你自己长期使用，还是后续提供给其他用户，最终都应该直接通过 `aic` 命令进入。
 
-## 当前安装方式
+## 安装方式
 
-目前可以通过源码本地安装：
+### 方式一：从 GitHub Release 下载
+
+发行版下载地址：
+
+- <https://github.com/xdx888999/aic/releases>
+
+请根据你的系统下载对应压缩包：
+
+- macOS Apple Silicon：`aic_darwin_arm64.tar.gz`
+- macOS Intel：`aic_darwin_amd64.tar.gz`
+- Linux amd64：`aic_linux_amd64.tar.gz`
+- Linux arm64：`aic_linux_arm64.tar.gz`
+
+下载后解压，并将 `aic` 放入你的 `PATH` 目录，例如：
+
+```bash
+mv aic /usr/local/bin/aic
+```
+
+完成后即可直接运行：
+
+```bash
+aic
+```
+
+### 方式二：源码本地安装
+
+目前也可以通过源码本地安装：
 
 ```bash
 go build -o aic .
@@ -69,7 +96,7 @@ aic
 
 前提是该目录已经加入 `PATH`。
 
-## 后续计划支持的安装方式
+## 计划支持的安装方式
 
 ### npm
 
