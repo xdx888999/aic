@@ -1,21 +1,25 @@
 # aic
 
+[中文](./README.md) | [English](./README.en.md)
+
 `aic` 是一个终端里的 AI CLI 工具管理器。
 
 它用于统一查看本机常见 AI CLI 工具的安装状态、当前版本、最新版本和更新源，并在同一个界面里完成升级或打开配置文件。
 
-英文界面预览：
+## 界面预览
+
+英文界面：
 
 ![aic 英文界面预览](./assets/aic-terminal.png)
 
-中文界面预览：
+中文界面：
 
 ![aic 中文界面预览](./assets/aic-terminal-zh.png)
 
 ## 核心功能
 
 - 扫描本机常见 AI CLI 工具
-- 显示当前版本、最新版本和更新源
+- 显示安装状态、当前版本、最新版本和更新源
 - 默认只显示已安装工具，也可以切换查看全部候选工具
 - 直接升级当前选中的工具
 - 直接打开当前工具的配置文件
@@ -36,7 +40,7 @@
 
 README 只列出常见工具，不承诺覆盖所有工具。
 
-## 运行方式
+## 命令入口
 
 项目的目标入口是：
 
@@ -48,7 +52,13 @@ aic
 
 ## 安装方式
 
-### 方式一：从 GitHub Release 下载
+### 方式一：通过 Homebrew 安装
+
+```bash
+brew tap xdx888999/homebrew-tap && brew install xdx888999/homebrew-tap/aic
+```
+
+### 方式二：从 GitHub Release 下载
 
 发行版下载地址：
 
@@ -67,44 +77,10 @@ aic
 mv aic /usr/local/bin/aic
 ```
 
-完成后即可直接运行：
-
-```bash
-aic
-```
-
-### 方式二：通过 Homebrew 安装
-
-```bash
-brew tap xdx888999/homebrew-tap
-brew install xdx888999/homebrew-tap/aic
-```
-
-安装完成后即可直接运行：
-
-```bash
-aic
-```
-
-更新命令：
-
-```bash
-brew update && brew upgrade aic
-```
-
 ### 方式三：源码本地安装
 
-目前也可以通过源码本地安装：
-
 ```bash
-go build -o aic .
-mv aic /usr/local/bin/aic
-```
-
-完成后即可直接运行：
-
-```bash
-aic
+go build -o aic . && mv aic /usr/local/bin/aic
 ```
 
 如果你使用个人目录，也可以放到：
@@ -158,3 +134,4 @@ go test ./...
 
 - X: <https://x.com/terry13O>
 - GitHub: <https://github.com/xdx888999>
+
