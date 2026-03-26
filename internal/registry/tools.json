@@ -1,0 +1,325 @@
+[
+  {
+    "name": "Claude Code",
+    "binary": "claude",
+    "upgrade_cmd": ["npm", "install", "-g", "@anthropic-ai/claude-code@latest"],
+    "config_paths": ["~/.claude/settings.json", "~/.claude/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "@anthropic-ai/claude-code",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Codex CLI",
+    "binary": "codex",
+    "upgrade_cmd": ["npm", "install", "-g", "@openai/codex@latest"],
+    "config_paths": ["~/.config/codex/", "~/.codex/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "@openai/codex",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Gemini CLI",
+    "binary": "gemini",
+    "upgrade_cmd": ["npm", "install", "-g", "@google/gemini-cli@latest"],
+    "config_paths": ["~/.gemini/settings.json", "~/.gemini/"],
+    "current_version": {
+      "provider": "npm_global",
+      "target": "@google/gemini-cli",
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm_dist_tag",
+      "target": "@google/gemini-cli",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Copilot CLI",
+    "binary": "copilot",
+    "upgrade_cmd": ["npm", "install", "-g", "@github/copilot@latest"],
+    "config_paths": ["~/.config/gh/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "@github/copilot",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Aider",
+    "binary": "aider",
+    "upgrade_cmd": ["pip3", "install", "--upgrade", "aider-chat"],
+    "config_paths": ["~/.aider.conf.yml"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "pypi",
+      "target": "aider-chat",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Cline",
+    "binary": "cline",
+    "upgrade_cmd": ["npm", "install", "-g", "cline@latest"],
+    "config_paths": ["~/.cline/data/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "cline",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Continue",
+    "binary": "cn",
+    "upgrade_cmd": ["npm", "install", "-g", "@continuedev/cli@latest"],
+    "config_paths": ["~/.continue/config.yaml", "~/.continue/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "@continuedev/cli",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Kimi CLI",
+    "binary": "kimi",
+    "upgrade_cmd": ["pip3", "install", "--upgrade", "kimi-cli"],
+    "config_paths": ["~/.kimi/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "pypi",
+      "target": "kimi-cli",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Kilo Code",
+    "binary": "kilo",
+    "upgrade_cmd": ["npm", "install", "-g", "@kilocode/cli@latest"],
+    "config_paths": ["~/.config/kilo/", "~/.kilo/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "@kilocode/cli",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "OpenCode",
+    "binary": "opencode",
+    "upgrade_cmd": ["npm", "install", "-g", "opencode-ai@latest"],
+    "config_paths": ["~/.opencode/", "~/.local/share/opencode/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "opencode-ai",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Qwen Code",
+    "binary": "qwen",
+    "upgrade_cmd": ["npm", "install", "-g", "@qwen-code/qwen-code@latest"],
+    "config_paths": ["~/.config/qwen/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "@qwen-code/qwen-code",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Cody CLI",
+    "binary": "cody",
+    "upgrade_cmd": ["npm", "install", "-g", "@sourcegraph/cody-cli@latest"],
+    "config_paths": [],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "@sourcegraph/cody-cli",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Amp CLI",
+    "binary": "amp",
+    "upgrade_cmd": ["npm", "install", "-g", "@sourcegraph/amp@latest"],
+    "config_paths": ["~/.config/amp/", "~/.amp/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "@sourcegraph/amp",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Goose CLI",
+    "binary": "goose",
+    "upgrade_cmd": ["goose", "update"],
+    "config_paths": ["~/.config/goose/config.yaml", "~/.config/goose/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "github_release",
+      "target": "block/goose",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Trae Agent",
+    "binary": "trae",
+    "upgrade_cmd": [],
+    "config_paths": ["~/.trae/argv.json", "~/.trae/", "~/.config/trae/"],
+    "current_version": {
+      "provider": "app_bundle",
+      "args": ["--version"],
+      "paths": ["/Applications/Trae.app", "~/Applications/Trae.app"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "homebrew_cask",
+      "target": "trae",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "DeepSeek CLI",
+    "binary": "deepseek",
+    "upgrade_cmd": ["pip3", "install", "--upgrade", "deepseek-cli"],
+    "config_paths": ["~/.deepseek/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "pypi",
+      "target": "deepseek-cli",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Kiro CLI",
+    "binary": "kiro",
+    "upgrade_cmd": [],
+    "config_paths": ["~/.aws/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "",
+      "target": "",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Cursor",
+    "binary": "cursor",
+    "upgrade_cmd": [],
+    "config_paths": ["~/.cursor/argv.json", "~/.cursor/mcp.json", "~/.cursor/"],
+    "current_version": {
+      "provider": "app_bundle",
+      "args": ["--version"],
+      "paths": ["/Applications/Cursor.app", "~/Applications/Cursor.app"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "homebrew_cask",
+      "target": "cursor",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Windsurf",
+    "binary": "windsurf",
+    "upgrade_cmd": [],
+    "config_paths": ["~/.windsurf/argv.json", "~/.windsurf/mcp.json", "~/.windsurf/"],
+    "current_version": {
+      "provider": "app_bundle",
+      "args": ["--version"],
+      "paths": ["/Applications/Windsurf.app", "~/Applications/Windsurf.app"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "homebrew_cask",
+      "target": "windsurf",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Tabnine",
+    "binary": "tabnine",
+    "upgrade_cmd": [],
+    "config_paths": ["~/.tabnine/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "",
+      "target": "",
+      "parse_strategy": "semver"
+    }
+  }
+]
