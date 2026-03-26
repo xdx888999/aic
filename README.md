@@ -89,8 +89,7 @@ aic
 更新命令：
 
 ```bash
-brew update
-brew upgrade aic
+brew update && brew upgrade aic
 ```
 
 ### 方式三：源码本地安装
@@ -121,8 +120,7 @@ aic
 ### Homebrew 用户
 
 ```bash
-brew update
-brew upgrade aic
+brew update && brew upgrade aic
 ```
 
 ### 手动下载用户
