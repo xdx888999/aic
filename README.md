@@ -86,6 +86,13 @@ brew install xdx888999/homebrew-tap/aic
 aic
 ```
 
+更新命令：
+
+```bash
+brew update
+brew upgrade aic
+```
+
 ### 方式三：源码本地安装
 
 目前也可以通过源码本地安装：
@@ -108,6 +115,20 @@ aic
 ```
 
 前提是该目录已经加入 `PATH`。
+
+## 更新 aic
+
+### Homebrew 用户
+
+```bash
+brew update
+brew upgrade aic
+```
+
+### 手动下载用户
+
+- 到 GitHub Release 页面下载新版本
+- 解压后替换旧的 `aic` 二进制
 
 ## 常用操作
 
