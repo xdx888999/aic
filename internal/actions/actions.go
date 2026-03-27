@@ -59,13 +59,15 @@ func UpgradeCmd(tool registry.Tool, index int) tea.Cmd {
 	})
 }
 
-func OpenConfigCmd(configPath string) tea.Cmd {
-	editor := os.Getenv("EDITOR")
-	if editor == "" {
-		editor = "vim"
+func ResolveEditor() string {
+	if editor := os.Getenv("EDITOR"); editor != "" {
+		return editor
 	}
+	return "vim"
+}
 
-	c := exec.Command(editor, configPath)
+func OpenConfigCmd(configPath string) tea.Cmd {
+	c := exec.Command(ResolveEditor(), configPath)
 	return tea.ExecProcess(c, func(err error) tea.Msg {
 		return ConfigClosedMsg{Err: err}
 	})

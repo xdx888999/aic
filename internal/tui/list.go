@@ -203,7 +203,7 @@ func renderActionText(tool detector.Status, localizer i18n.Localizer) string {
 
 func renderSourceCell(tool detector.Status, localizer i18n.Localizer) (string, lipgloss.Style) {
 	sourceText := registry.DisplayLatestVersionProvider(tool.Tool.LatestVersion.Provider)
-	if tool.Tool.LatestVersion.Provider == registry.LatestVersionProviderNone {
+	if sourceText == "" {
 		sourceText = localizer.Text("source_none")
 	}
 

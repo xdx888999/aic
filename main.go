@@ -16,7 +16,7 @@ func main() {
 		return
 	}
 
-	locale := i18n.DefaultLocale()
+	locale := i18n.DetectLocale()
 	localizer := i18n.NewLocalizer(locale)
 	p := tea.NewProgram(tui.NewWithLocale(locale), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {

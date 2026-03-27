@@ -2,7 +2,7 @@
   {
     "name": "Claude Code",
     "binary": "claude",
-    "upgrade_cmd": ["npm", "install", "-g", "@anthropic-ai/claude-code@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "@anthropic-ai/claude-code@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.claude/settings.json", "~/.claude/"],
     "current_version": {
       "provider": "command",
@@ -18,7 +18,7 @@
   {
     "name": "Codex CLI",
     "binary": "codex",
-    "upgrade_cmd": ["npm", "install", "-g", "@openai/codex@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "@openai/codex@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.config/codex/", "~/.codex/"],
     "current_version": {
       "provider": "command",
@@ -34,7 +34,7 @@
   {
     "name": "Gemini CLI",
     "binary": "gemini",
-    "upgrade_cmd": ["npm", "install", "-g", "@google/gemini-cli@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "@google/gemini-cli@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.gemini/settings.json", "~/.gemini/"],
     "current_version": {
       "provider": "npm_global",
@@ -42,7 +42,7 @@
       "parse_strategy": "semver"
     },
     "latest_version": {
-      "provider": "npm_dist_tag",
+      "provider": "npm",
       "target": "@google/gemini-cli",
       "parse_strategy": "semver"
     }
@@ -50,7 +50,7 @@
   {
     "name": "Copilot CLI",
     "binary": "copilot",
-    "upgrade_cmd": ["npm", "install", "-g", "@github/copilot@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "@github/copilot@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.config/gh/"],
     "current_version": {
       "provider": "command",
@@ -82,7 +82,7 @@
   {
     "name": "Cline",
     "binary": "cline",
-    "upgrade_cmd": ["npm", "install", "-g", "cline@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "cline@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.cline/data/"],
     "current_version": {
       "provider": "command",
@@ -98,7 +98,7 @@
   {
     "name": "Continue",
     "binary": "cn",
-    "upgrade_cmd": ["npm", "install", "-g", "@continuedev/cli@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "@continuedev/cli@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.continue/config.yaml", "~/.continue/"],
     "current_version": {
       "provider": "command",
@@ -130,7 +130,7 @@
   {
     "name": "Kilo Code",
     "binary": "kilo",
-    "upgrade_cmd": ["npm", "install", "-g", "@kilocode/cli@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "@kilocode/cli@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.config/kilo/", "~/.kilo/"],
     "current_version": {
       "provider": "command",
@@ -146,7 +146,7 @@
   {
     "name": "OpenCode",
     "binary": "opencode",
-    "upgrade_cmd": ["npm", "install", "-g", "opencode-ai@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "opencode-ai@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.opencode/", "~/.local/share/opencode/"],
     "current_version": {
       "provider": "command",
@@ -162,7 +162,7 @@
   {
     "name": "Qwen Code",
     "binary": "qwen",
-    "upgrade_cmd": ["npm", "install", "-g", "@qwen-code/qwen-code@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "@qwen-code/qwen-code@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.config/qwen/"],
     "current_version": {
       "provider": "command",
@@ -178,7 +178,7 @@
   {
     "name": "Cody CLI",
     "binary": "cody",
-    "upgrade_cmd": ["npm", "install", "-g", "@sourcegraph/cody-cli@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "@sourcegraph/cody-cli@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": [],
     "current_version": {
       "provider": "command",
@@ -194,7 +194,7 @@
   {
     "name": "Amp CLI",
     "binary": "amp",
-    "upgrade_cmd": ["npm", "install", "-g", "@sourcegraph/amp@latest"],
+    "upgrade_cmd": ["npm", "install", "-g", "@sourcegraph/amp@latest", "--registry=https://registry.npmjs.org"],
     "config_paths": ["~/.config/amp/", "~/.amp/"],
     "current_version": {
       "provider": "command",
@@ -235,8 +235,8 @@
       "parse_strategy": "semver"
     },
     "latest_version": {
-      "provider": "homebrew_cask",
-      "target": "trae",
+      "provider": "",
+      "target": "",
       "parse_strategy": "semver"
     }
   },

@@ -54,7 +54,6 @@ func Detect(tool registry.Tool) Status {
 
 	binaryPath, err := exec.LookPath(tool.Binary)
 	if err != nil {
-		status.LatestVersion = fetchLatest(tool)
 		return status
 	}
 

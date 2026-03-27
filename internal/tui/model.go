@@ -2,7 +2,6 @@ package tui
 
 import (
 	"errors"
-	"os"
 	"strings"
 	"time"
 
@@ -22,6 +21,11 @@ const (
 	stateLoading state = iota
 	stateList
 	stateConfigHelp
+)
+
+const (
+	msgDurationSuccess = 3 * time.Second
+	msgDurationError   = 5 * time.Second
 )
 
 type toolsDetectedMsg []detector.Status
@@ -82,15 +86,6 @@ func rescanCmd() tea.Cmd {
 	}
 }
 
-func rescanOneCmd(index int) tea.Cmd {
-	return func() tea.Msg {
-		tools := registry.AllTools()
-		results := detector.DetectAll(tools)
-		_ = index
-		return rescanCompleteMsg(results)
-	}
-}
-
 func clearMsgAfter(d time.Duration) tea.Cmd {
 	return tea.Tick(d, func(_ time.Time) tea.Msg {
 		return clearMessageMsg{}
@@ -116,13 +111,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.clampCursor()
 		m.message = m.localizer.Text("scan_complete")
 		m.msgErr = false
-		return m, clearMsgAfter(3 * time.Second)
+		return m, clearMsgAfter(msgDurationSuccess)
 
 	case actions.UpgradeFinishedMsg:
 		if msg.Err != nil {
 			m.message = m.formatUpgradeError(msg.Err)
 			m.msgErr = true
-			return m, clearMsgAfter(5 * time.Second)
+			return m, clearMsgAfter(msgDurationError)
 		} else {
 			m.message = m.localizer.Text("upgrade_complete_rescanning")
 			m.msgErr = false
@@ -131,14 +126,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Batch(
 			m.spinner.Tick,
 			rescanCmd(),
-			clearMsgAfter(5*time.Second),
+			clearMsgAfter(msgDurationError),
 		)
 
 	case actions.ConfigClosedMsg:
 		if msg.Err != nil {
 			m.message = m.localizer.Text("config_closed_error", msg.Err)
 			m.msgErr = true
-			return m, clearMsgAfter(3 * time.Second)
+			return m, clearMsgAfter(msgDurationError)
 		}
 		return m, nil
 
@@ -267,11 +262,7 @@ func (m Model) View() string {
 }
 
 func (m Model) editorName() string {
-	editor := os.Getenv("EDITOR")
-	if editor == "" {
-		return "vim"
-	}
-	return editor
+	return actions.ResolveEditor()
 }
 
 func (m Model) visibleTools() []detector.Status {

@@ -89,8 +89,8 @@ func TestAllToolsIncludesDesktopProviders(t *testing.T) {
 	if trae.ConfigPaths[0] != "~/.trae/argv.json" {
 		t.Fatalf("期望 Trae Agent 首选配置路径为 ~/.trae/argv.json，实际为 %q", trae.ConfigPaths[0])
 	}
-	if trae.LatestVersion.Provider != LatestVersionProviderHomebrewCask {
-		t.Fatalf("期望 Trae Agent 使用 homebrew cask 提供最新版本，实际为 %q", trae.LatestVersion.Provider)
+	if trae.LatestVersion.Provider != LatestVersionProviderNone {
+		t.Fatalf("期望 Trae Agent 不使用上游检测最新版本（版本方案不兼容），实际为 %q", trae.LatestVersion.Provider)
 	}
 
 	windsurf := toolByName["Windsurf"]
@@ -99,15 +99,15 @@ func TestAllToolsIncludesDesktopProviders(t *testing.T) {
 	}
 
 	gemini := toolByName["Gemini CLI"]
-	expectedUpgrade := []string{"npm", "install", "-g", "@google/gemini-cli@latest"}
+	expectedUpgrade := []string{"npm", "install", "-g", "@google/gemini-cli@latest", "--registry=https://registry.npmjs.org"}
 	if strings.Join(gemini.UpgradeCmd, " ") != strings.Join(expectedUpgrade, " ") {
 		t.Fatalf("期望 Gemini CLI 的升级命令为 %v，实际为 %v", expectedUpgrade, gemini.UpgradeCmd)
 	}
 	if gemini.CurrentVersion.Provider != CurrentVersionProviderNPMGlobal {
 		t.Fatalf("期望 Gemini CLI 使用 npm_global 检测当前版本，实际为 %q", gemini.CurrentVersion.Provider)
 	}
-	if gemini.LatestVersion.Provider != LatestVersionProviderNPMDistTag {
-		t.Fatalf("期望 Gemini CLI 使用 npm_dist_tag 检测最新版本，实际为 %q", gemini.LatestVersion.Provider)
+	if gemini.LatestVersion.Provider != LatestVersionProviderNPM {
+		t.Fatalf("期望 Gemini CLI 使用 npm 检测最新版本，实际为 %q", gemini.LatestVersion.Provider)
 	}
 }
 
@@ -121,7 +121,7 @@ func TestDisplayLatestVersionProvider(t *testing.T) {
 		{provider: LatestVersionProviderPyPI, expected: "PyPI"},
 		{provider: LatestVersionProviderGitHubRelease, expected: "GitHub"},
 		{provider: LatestVersionProviderHomebrewCask, expected: "Homebrew"},
-		{provider: "", expected: "无上游"},
+		{provider: "", expected: ""},
 	}
 
 	for _, testCase := range testCases {

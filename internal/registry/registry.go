@@ -170,6 +170,6 @@ func DisplayLatestVersionProvider(provider string) string {
 	case LatestVersionProviderHomebrewCask:
 		return "Homebrew"
 	default:
-		return "无上游"
+		return ""
 	}
 }

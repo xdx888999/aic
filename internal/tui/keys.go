@@ -18,42 +18,42 @@ type keyMap struct {
 var keys = keyMap{
 	Up: key.NewBinding(
 		key.WithKeys("up", "k"),
-		key.WithHelp("↑/k", "上移"),
+		key.WithHelp("↑/k", "move up"),
 	),
 	Down: key.NewBinding(
 		key.WithKeys("down", "j"),
-		key.WithHelp("↓/j", "下移"),
+		key.WithHelp("↓/j", "move down"),
 	),
 	Toggle: key.NewBinding(
 		key.WithKeys("a"),
-		key.WithHelp("a", "显示全部"),
+		key.WithHelp("a", "show all"),
 	),
 	Language: key.NewBinding(
 		key.WithKeys("l"),
-		key.WithHelp("l", "切换语言"),
+		key.WithHelp("l", "switch language"),
 	),
 	Upgrade: key.NewBinding(
 		key.WithKeys("u"),
-		key.WithHelp("u", "升级"),
+		key.WithHelp("u", "upgrade"),
 	),
 	Config: key.NewBinding(
 		key.WithKeys("c"),
-		key.WithHelp("c", "配置"),
+		key.WithHelp("c", "config"),
 	),
 	Rescan: key.NewBinding(
 		key.WithKeys("r"),
-		key.WithHelp("r", "重新扫描"),
+		key.WithHelp("r", "rescan"),
 	),
 	Quit: key.NewBinding(
 		key.WithKeys("q", "ctrl+c"),
-		key.WithHelp("q", "退出"),
+		key.WithHelp("q", "quit"),
 	),
 	Confirm: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("Enter", "确认"),
+		key.WithHelp("Enter", "confirm"),
 	),
 	Cancel: key.NewBinding(
 		key.WithKeys("esc"),
-		key.WithHelp("Esc", "取消"),
+		key.WithHelp("Esc", "cancel"),
 	),
 }
