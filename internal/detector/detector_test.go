@@ -1,6 +1,8 @@
 package detector
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/xdx888999/aic/internal/registry"
@@ -56,5 +58,45 @@ func TestParseNPMDistTagJSONValue(t *testing.T) {
 	actual := registry.ParseVersion(normalizeJSONCommandValue(raw), "semver")
 	if actual != "0.33.1" {
 		t.Fatalf("期望 dist-tag latest 解析为 0.33.1，实际为 %q", actual)
+	}
+}
+
+func TestDetectOpenCodeInstallSource(t *testing.T) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatalf("期望能够读取用户目录，实际报错: %v", err)
+	}
+
+	source := detectInstallSource(
+		registry.Tool{Name: "OpenCode", Binary: "opencode"},
+		filepath.Join(homeDir, ".opencode", "bin", "opencode"),
+	)
+	if source != InstallSourceOfficialScript {
+		t.Fatalf("期望 OpenCode 官方脚本路径识别为 %q，实际为 %q", InstallSourceOfficialScript, source)
+	}
+}
+
+func TestDetectKimiInstallSourceForConda(t *testing.T) {
+	source := detectInstallSource(
+		registry.Tool{Name: "Kimi CLI", Binary: "kimi"},
+		"/opt/anaconda3/bin/kimi",
+	)
+	if source != InstallSourceConda {
+		t.Fatalf("期望 Conda 路径识别为 %q，实际为 %q", InstallSourceConda, source)
+	}
+}
+
+func TestDetectKimiInstallSourceForUVTool(t *testing.T) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatalf("期望能够读取用户目录，实际报错: %v", err)
+	}
+
+	source := detectInstallSource(
+		registry.Tool{Name: "Kimi CLI", Binary: "kimi"},
+		filepath.Join(homeDir, ".local", "share", "uv", "tools", "kimi-cli", "bin", "kimi"),
+	)
+	if source != InstallSourceUVTool {
+		t.Fatalf("期望 uv tool 路径识别为 %q，实际为 %q", InstallSourceUVTool, source)
 	}
 }

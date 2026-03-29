@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/xdx888999/aic/internal/actions"
 	"github.com/xdx888999/aic/internal/detector"
 	"github.com/xdx888999/aic/internal/i18n"
 	"github.com/xdx888999/aic/internal/registry"
@@ -131,7 +132,7 @@ func renderRow(tool detector.Status, columns []tableColumn, selected bool, local
 	}
 
 	statusText, statusStyle := renderStatusCell(tool, localizer)
-	currentText, currentStyle, latestText, latestStyle := renderVersionCells(tool)
+	currentText, currentStyle, latestText, latestStyle := renderVersionCells(tool, localizer)
 	sourceText, sourceStyle := renderSourceCell(tool, localizer)
 	actionText := renderActionText(tool, localizer)
 
@@ -159,7 +160,7 @@ func renderStatusCell(tool detector.Status, localizer i18n.Localizer) (string, l
 	return localizer.Text("status_missing"), missingStyle
 }
 
-func renderVersionCells(tool detector.Status) (string, lipgloss.Style, string, lipgloss.Style) {
+func renderVersionCells(tool detector.Status, localizer i18n.Localizer) (string, lipgloss.Style, string, lipgloss.Style) {
 	currentVersion := tool.Version
 	if currentVersion == "" {
 		currentVersion = "-"
@@ -178,6 +179,10 @@ func renderVersionCells(tool detector.Status) (string, lipgloss.Style, string, l
 		return currentVersion, missingStyle, latestVersion, missingStyle
 	}
 
+	if shouldShowManualLatestCheckHint(tool) {
+		return currentVersion, upToDateStyle, localizer.Text("latest_manual_check"), missingStyle
+	}
+
 	if latestVersion == "-" {
 		return currentVersion, upToDateStyle, latestVersion, missingStyle
 	}
@@ -190,9 +195,16 @@ func renderVersionCells(tool detector.Status) (string, lipgloss.Style, string, l
 	return currentVersion, upToDateStyle, latestVersion, missingStyle
 }
 
+func shouldShowManualLatestCheckHint(tool detector.Status) bool {
+	return tool.Tool.Name == "Trae Agent" &&
+		tool.Installed &&
+		tool.Tool.LatestVersion.Provider == registry.LatestVersionProviderNone &&
+		actions.SupportsUpgradeAction(tool)
+}
+
 func renderActionText(tool detector.Status, localizer i18n.Localizer) string {
 	parts := make([]string, 0, 2)
-	if tool.Installed && len(tool.Tool.UpgradeCmd) > 0 {
+	if actions.SupportsUpgradeAction(tool) {
 		parts = append(parts, localizer.Text("action_upgrade"))
 	}
 	if tool.HasConfig {
@@ -202,6 +214,10 @@ func renderActionText(tool detector.Status, localizer i18n.Localizer) string {
 }
 
 func renderSourceCell(tool detector.Status, localizer i18n.Localizer) (string, lipgloss.Style) {
+	if shouldShowManualLatestCheckHint(tool) {
+		return localizer.Text("source_manual_check"), noSourceStyle
+	}
+
 	sourceText := registry.DisplayLatestVersionProvider(tool.Tool.LatestVersion.Provider)
 	if sourceText == "" {
 		sourceText = localizer.Text("source_none")

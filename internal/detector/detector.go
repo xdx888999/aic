@@ -28,10 +28,21 @@ const (
 
 var versionTokenRe = regexp.MustCompile(`\d+|[A-Za-z]+`)
 
+type InstallSource string
+
+const (
+	InstallSourceUnknown        InstallSource = ""
+	InstallSourceNPMGlobal      InstallSource = "npm_global"
+	InstallSourceOfficialScript InstallSource = "official_script"
+	InstallSourceConda          InstallSource = "conda"
+	InstallSourceUVTool         InstallSource = "uv_tool"
+)
+
 type Status struct {
 	Tool          registry.Tool
 	Installed     bool
 	BinaryPath    string
+	InstallSource InstallSource
 	Version       string
 	LatestVersion string
 	HasConfig     bool
@@ -59,6 +70,7 @@ func Detect(tool registry.Tool) Status {
 
 	status.Installed = true
 	status.BinaryPath = binaryPath
+	status.InstallSource = detectInstallSource(tool, binaryPath)
 	status.Version = detectCurrentVersion(tool)
 	status.HasConfig, status.ConfigPath = detectConfig(tool.ConfigPaths)
 	status.LatestVersion = fetchLatest(tool)
@@ -139,6 +151,123 @@ func detectConfig(paths []string) (bool, string) {
 		}
 	}
 	return false, ""
+}
+
+func detectInstallSource(tool registry.Tool, binaryPath string) InstallSource {
+	switch tool.Name {
+	case "OpenCode":
+		return detectOpenCodeInstallSource(binaryPath)
+	case "Kimi CLI":
+		return detectKimiInstallSource(binaryPath)
+	default:
+		return detectNPMGlobalInstallSource(binaryPath)
+	}
+}
+
+func detectOpenCodeInstallSource(binaryPath string) InstallSource {
+	if source := detectNPMGlobalInstallSource(binaryPath); source != InstallSourceUnknown {
+		return source
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err == nil {
+		if pathMatchesDir(binaryPath, filepath.Join(homeDir, ".opencode", "bin")) {
+			return InstallSourceOfficialScript
+		}
+	}
+
+	return InstallSourceUnknown
+}
+
+func detectKimiInstallSource(binaryPath string) InstallSource {
+	if source := detectUVToolInstallSource(binaryPath); source != InstallSourceUnknown {
+		return source
+	}
+	if source := detectCondaInstallSource(binaryPath); source != InstallSourceUnknown {
+		return source
+	}
+	return InstallSourceUnknown
+}
+
+func detectNPMGlobalInstallSource(binaryPath string) InstallSource {
+	for _, candidatePath := range candidatePaths(binaryPath) {
+		normalizedPath := filepath.ToSlash(candidatePath)
+		if strings.Contains(normalizedPath, "/node_modules/") {
+			return InstallSourceNPMGlobal
+		}
+	}
+	return InstallSourceUnknown
+}
+
+func detectUVToolInstallSource(binaryPath string) InstallSource {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return InstallSourceUnknown
+	}
+	uvToolsDir := filepath.Join(homeDir, ".local", "share", "uv", "tools")
+	if pathMatchesDir(binaryPath, uvToolsDir) {
+		return InstallSourceUVTool
+	}
+	return InstallSourceUnknown
+}
+
+func detectCondaInstallSource(binaryPath string) InstallSource {
+	for _, candidatePath := range candidatePaths(binaryPath) {
+		normalizedPath := filepath.ToSlash(candidatePath)
+		switch {
+		case strings.Contains(normalizedPath, "/anaconda"):
+			return InstallSourceConda
+		case strings.Contains(normalizedPath, "/miniconda"):
+			return InstallSourceConda
+		case strings.Contains(normalizedPath, "/conda/envs/"):
+			return InstallSourceConda
+		}
+	}
+	return InstallSourceUnknown
+}
+
+func candidatePaths(path string) []string {
+	paths := make([]string, 0, 2)
+
+	appendPath := func(candidate string) {
+		if candidate == "" {
+			return
+		}
+		absolutePath, err := filepath.Abs(candidate)
+		if err != nil {
+			absolutePath = filepath.Clean(candidate)
+		}
+		for _, existingPath := range paths {
+			if existingPath == absolutePath {
+				return
+			}
+		}
+		paths = append(paths, absolutePath)
+	}
+
+	appendPath(path)
+	if resolvedPath, err := filepath.EvalSymlinks(path); err == nil {
+		appendPath(resolvedPath)
+	}
+
+	return paths
+}
+
+func pathMatchesDir(path string, dir string) bool {
+	if path == "" || dir == "" {
+		return false
+	}
+
+	for _, candidatePath := range candidatePaths(path) {
+		relativePath, err := filepath.Rel(dir, candidatePath)
+		if err != nil {
+			continue
+		}
+		if relativePath == "." || (relativePath != ".." && !strings.HasPrefix(relativePath, ".."+string(os.PathSeparator))) {
+			return true
+		}
+	}
+	return false
 }
 
 func fetchLatest(tool registry.Tool) string {

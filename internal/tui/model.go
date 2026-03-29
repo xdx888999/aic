@@ -129,6 +129,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			clearMsgAfter(msgDurationError),
 		)
 
+	case actions.ManualUpgradeLaunchedMsg:
+		m.message = m.localizer.Text("manual_upgrade_opened", msg.ToolName)
+		m.msgErr = false
+		return m, clearMsgAfter(msgDurationSuccess)
+
 	case actions.ConfigClosedMsg:
 		if msg.Err != nil {
 			m.message = m.localizer.Text("config_closed_error", msg.Err)
@@ -184,8 +189,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.toggleLocale()
 			case key.Matches(msg, keys.Upgrade):
 				t, selectedIndex, ok := m.selectedTool()
-				if ok && t.Installed && len(t.Tool.UpgradeCmd) > 0 {
-					return m, actions.UpgradeCmd(t.Tool, selectedIndex)
+				if ok && actions.SupportsUpgradeAction(t) {
+					return m, actions.UpgradeCmd(t, selectedIndex)
 				}
 			case key.Matches(msg, keys.Config):
 				t, _, ok := m.selectedTool()
@@ -386,6 +391,8 @@ func (m Model) formatUpgradeError(err error) string {
 			return m.localizer.Text("upgrade_failed", m.localizer.Text("error_upgrade_not_supported"))
 		case actions.ErrorMissingPackageManager:
 			return m.localizer.Text("upgrade_failed", m.localizer.Text("error_missing_package_manager", actionErr.Arg))
+		case actions.ErrorUpgradeTargetMismatch:
+			return m.localizer.Text("upgrade_failed", m.localizer.Text("error_upgrade_target_mismatch", actionErr.Arg, m.localizer.Text(actionErr.Hint)))
 		}
 	}
 	return m.localizer.Text("upgrade_failed", err)

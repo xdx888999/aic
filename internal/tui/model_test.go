@@ -154,6 +154,40 @@ func TestRenderListShowsNoSourceText(t *testing.T) {
 	}
 }
 
+func TestRenderListShowsManualCheckHintForTrae(t *testing.T) {
+	output := renderList(
+		[]detector.Status{
+			{
+				Tool: registry.Tool{
+					Name:       "Trae Agent",
+					UpgradeCmd: []string{},
+					CurrentVersion: registry.VersionSource{
+						Provider: registry.CurrentVersionProviderAppBundle,
+						Paths:    []string{"/Applications/Trae.app"},
+					},
+					LatestVersion: registry.VersionSource{
+						Provider: registry.LatestVersionProviderNone,
+					},
+				},
+				Installed: true,
+				Version:   "3.5.37",
+			},
+		},
+		0,
+		140,
+		true,
+		1,
+		i18n.NewLocalizer(i18n.LocaleChinese),
+	)
+
+	if !strings.Contains(output, "按u手检") {
+		t.Fatalf("期望 Trae 的最新版本列显示手动检查提示，实际输出为 %q", output)
+	}
+	if !strings.Contains(output, "官方无接口") {
+		t.Fatalf("期望 Trae 的来源列显示官方无接口，实际输出为 %q", output)
+	}
+}
+
 func TestRenderListActionCellDoesNotContainExtraNewline(t *testing.T) {
 	output := renderList(
 		[]detector.Status{
