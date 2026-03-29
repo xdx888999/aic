@@ -2,6 +2,7 @@ package tui
 
 import (
 	"errors"
+	"os"
 	"strings"
 	"testing"
 
@@ -155,6 +156,12 @@ func TestRenderListShowsNoSourceText(t *testing.T) {
 }
 
 func TestRenderListShowsManualCheckHintForTrae(t *testing.T) {
+	tempDir := t.TempDir()
+	appPath := tempDir + "/Trae.app"
+	if err := os.MkdirAll(appPath, 0o755); err != nil {
+		t.Fatalf("期望创建 Trae 应用目录成功，实际报错: %v", err)
+	}
+
 	output := renderList(
 		[]detector.Status{
 			{
@@ -163,7 +170,7 @@ func TestRenderListShowsManualCheckHintForTrae(t *testing.T) {
 					UpgradeCmd: []string{},
 					CurrentVersion: registry.VersionSource{
 						Provider: registry.CurrentVersionProviderAppBundle,
-						Paths:    []string{"/Applications/Trae.app"},
+						Paths:    []string{appPath},
 					},
 					LatestVersion: registry.VersionSource{
 						Provider: registry.LatestVersionProviderNone,
