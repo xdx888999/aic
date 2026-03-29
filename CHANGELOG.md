@@ -10,6 +10,26 @@
 
 ## [Unreleased]
 
+## [v0.1.3] - 2026-03-30
+
+### Changed
+
+- `OpenCode` 升级逻辑改为根据当前命中的安装来源自动选择正确升级方式，不再固定走 npm
+- `Kimi CLI` 升级逻辑改为根据当前命中的安装来源自动选择对应升级入口，支持区分 Conda 与 uv tool
+- `Cursor`、`Trae Agent`、`Windsurf` 这类桌面应用现在支持通过 `u` 键直接打开软件，引导用户在应用内完成升级
+- `Trae Agent` 在“最新版本 / 更新源”列改为明确提示“按 u 手检 / 官方无接口”，避免误解为检测异常
+
+### Fixed
+
+- 修复 `aic` 在升级 `OpenCode` 时可能重新安装 npm 版本、导致本机出现重复安装的问题
+- 修复 `aic` 在升级 `Kimi CLI` 时可能升级到错误 Python 工具链的问题
+- 修复桌面类工具虽然支持手动升级，但界面中不显示升级动作的问题
+
+### CI
+
+- GitHub Actions 升级到 Node 24 兼容链路，`actions/checkout` 升级到 `v5`，`actions/setup-go` 升级到 `v6`
+- 发布流程改为直接安装并执行 `goreleaser v2.12.7`，去除对旧版 JavaScript action runtime 的依赖
+
 ## [v0.1.1] - 2026-03-27
 
 ### Added
