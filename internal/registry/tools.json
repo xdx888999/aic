@@ -48,6 +48,22 @@
     }
   },
   {
+    "name": "Antigravity CLI",
+    "binary": "agy",
+    "upgrade_cmd": ["agy", "update"],
+    "config_paths": ["~/.gemini/antigravity-cli/settings.json", "~/.gemini/antigravity-cli/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "",
+      "target": "",
+      "parse_strategy": "semver"
+    }
+  },
+  {
     "name": "Copilot CLI",
     "binary": "copilot",
     "upgrade_cmd": ["npm", "install", "-g", "@github/copilot@latest", "--registry=https://registry.npmjs.org"],
