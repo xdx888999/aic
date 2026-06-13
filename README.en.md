@@ -33,7 +33,7 @@ The project currently focuses on common tools such as:
 - `Gemini CLI`
 - `Aider`
 - `Qwen Code`
-- `Kimi CLI`
+- `Kimi Code`
 - `Cursor`
 - `Windsurf`
 - `Trae Agent`

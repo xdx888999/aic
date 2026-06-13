@@ -109,6 +109,21 @@ func TestAllToolsIncludesDesktopProviders(t *testing.T) {
 	if gemini.LatestVersion.Provider != LatestVersionProviderNPM {
 		t.Fatalf("期望 Gemini CLI 使用 npm 检测最新版本，实际为 %q", gemini.LatestVersion.Provider)
 	}
+
+	kimi := toolByName["Kimi Code"]
+	expectedKimiUpgrade := []string{"kimi", "upgrade"}
+	if strings.Join(kimi.UpgradeCmd, " ") != strings.Join(expectedKimiUpgrade, " ") {
+		t.Fatalf("期望 Kimi Code 的升级命令为 %v，实际为 %v", expectedKimiUpgrade, kimi.UpgradeCmd)
+	}
+	if kimi.CurrentVersion.Provider != CurrentVersionProviderCommand {
+		t.Fatalf("期望 Kimi Code 使用 command 检测当前版本，实际为 %q", kimi.CurrentVersion.Provider)
+	}
+	if kimi.LatestVersion.Provider != LatestVersionProviderNPM {
+		t.Fatalf("期望 Kimi Code 使用 npm 检测最新版本，实际为 %q", kimi.LatestVersion.Provider)
+	}
+	if kimi.LatestVersion.Target != "@moonshot-ai/kimi-code" {
+		t.Fatalf("期望 Kimi Code 最新版本来源为官方 npm 包，实际为 %q", kimi.LatestVersion.Target)
+	}
 }
 
 func TestDisplayLatestVersionProvider(t *testing.T) {

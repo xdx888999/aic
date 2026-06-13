@@ -76,27 +76,17 @@ func TestDetectOpenCodeInstallSource(t *testing.T) {
 	}
 }
 
-func TestDetectKimiInstallSourceForConda(t *testing.T) {
-	source := detectInstallSource(
-		registry.Tool{Name: "Kimi CLI", Binary: "kimi"},
-		"/opt/anaconda3/bin/kimi",
-	)
-	if source != InstallSourceConda {
-		t.Fatalf("期望 Conda 路径识别为 %q，实际为 %q", InstallSourceConda, source)
-	}
-}
-
-func TestDetectKimiInstallSourceForUVTool(t *testing.T) {
+func TestDetectKimiCodeInstallSourceForOfficialScript(t *testing.T) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		t.Fatalf("期望能够读取用户目录，实际报错: %v", err)
 	}
 
 	source := detectInstallSource(
-		registry.Tool{Name: "Kimi CLI", Binary: "kimi"},
-		filepath.Join(homeDir, ".local", "share", "uv", "tools", "kimi-cli", "bin", "kimi"),
+		registry.Tool{Name: "Kimi Code", Binary: "kimi"},
+		filepath.Join(homeDir, ".kimi-code", "bin", "kimi"),
 	)
-	if source != InstallSourceUVTool {
-		t.Fatalf("期望 uv tool 路径识别为 %q，实际为 %q", InstallSourceUVTool, source)
+	if source != InstallSourceOfficialScript {
+		t.Fatalf("期望 Kimi Code 官方脚本路径识别为 %q，实际为 %q", InstallSourceOfficialScript, source)
 	}
 }

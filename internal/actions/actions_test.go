@@ -223,52 +223,19 @@ func TestResolveUpgradeCommandUsesNPMMethodForOpenCodeInstalledViaNPM(t *testing
 	}
 }
 
-func TestResolveUpgradeCommandUsesCondaPythonForKimi(t *testing.T) {
-	tempDir := t.TempDir()
-	binDir := filepath.Join(tempDir, "bin")
-	if err := os.MkdirAll(binDir, 0o755); err != nil {
-		t.Fatalf("期望创建临时目录成功，实际报错: %v", err)
-	}
-	pythonPath := filepath.Join(binDir, "python3")
-	if err := os.WriteFile(pythonPath, []byte("#!/bin/sh\n"), 0o755); err != nil {
-		t.Fatalf("期望写入 python3 占位文件成功，实际报错: %v", err)
-	}
-
+func TestResolveUpgradeCommandUsesCurrentBinaryForKimiCode(t *testing.T) {
+	binaryPath := filepath.Join(t.TempDir(), "kimi")
 	status := detector.Status{
-		Installed:     true,
-		BinaryPath:    filepath.Join(binDir, "kimi"),
-		InstallSource: detector.InstallSourceConda,
+		Installed:  true,
+		BinaryPath: binaryPath,
 		Tool: registry.Tool{
-			Name:       "Kimi CLI",
-			UpgradeCmd: []string{"pip3", "install", "--upgrade", "kimi-cli"},
+			Name:       "Kimi Code",
+			UpgradeCmd: []string{"kimi", "upgrade"},
 		},
 	}
 
 	commandArgs := resolveUpgradeCommand(status)
-	expected := []string{pythonPath, "-m", "pip", "install", "--upgrade", "kimi-cli"}
-	if len(commandArgs) != len(expected) {
-		t.Fatalf("期望升级命令长度为 %d，实际为 %d，内容: %v", len(expected), len(commandArgs), commandArgs)
-	}
-	for index := range expected {
-		if commandArgs[index] != expected[index] {
-			t.Fatalf("期望第 %d 个参数为 %q，实际为 %q；完整命令: %v", index, expected[index], commandArgs[index], commandArgs)
-		}
-	}
-}
-
-func TestResolveUpgradeCommandUsesUVToolUpgradeForKimi(t *testing.T) {
-	status := detector.Status{
-		Installed:     true,
-		BinaryPath:    "/Users/test/.local/share/uv/tools/kimi-cli/bin/kimi",
-		InstallSource: detector.InstallSourceUVTool,
-		Tool: registry.Tool{
-			Name:       "Kimi CLI",
-			UpgradeCmd: []string{"pip3", "install", "--upgrade", "kimi-cli"},
-		},
-	}
-
-	commandArgs := resolveUpgradeCommand(status)
-	expected := []string{"uv", "tool", "upgrade", "kimi-cli"}
+	expected := []string{binaryPath, "upgrade"}
 	if len(commandArgs) != len(expected) {
 		t.Fatalf("期望升级命令长度为 %d，实际为 %d，内容: %v", len(expected), len(commandArgs), commandArgs)
 	}

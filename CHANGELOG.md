@@ -10,6 +10,14 @@
 
 ## [Unreleased]
 
+## [v0.1.5] - 2026-06-13
+
+### Changed
+
+- 将 `Kimi CLI` 条目调整为官方 `Kimi Code`，最新版本来源改为 npm 包 `@moonshot-ai/kimi-code`
+- 将 Kimi 升级入口调整为 `kimi upgrade`，兼容官方安装脚本和 npm 安装方式
+- 移除旧版 `kimi-cli` 的 pip / Conda / uv tool 专用升级逻辑，避免继续使用过期升级入口
+
 ## [v0.1.3] - 2026-03-30
 
 ### Changed

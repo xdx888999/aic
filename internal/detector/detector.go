@@ -34,8 +34,6 @@ const (
 	InstallSourceUnknown        InstallSource = ""
 	InstallSourceNPMGlobal      InstallSource = "npm_global"
 	InstallSourceOfficialScript InstallSource = "official_script"
-	InstallSourceConda          InstallSource = "conda"
-	InstallSourceUVTool         InstallSource = "uv_tool"
 )
 
 type Status struct {
@@ -157,8 +155,8 @@ func detectInstallSource(tool registry.Tool, binaryPath string) InstallSource {
 	switch tool.Name {
 	case "OpenCode":
 		return detectOpenCodeInstallSource(binaryPath)
-	case "Kimi CLI":
-		return detectKimiInstallSource(binaryPath)
+	case "Kimi Code":
+		return detectKimiCodeInstallSource(binaryPath)
 	default:
 		return detectNPMGlobalInstallSource(binaryPath)
 	}
@@ -179,13 +177,18 @@ func detectOpenCodeInstallSource(binaryPath string) InstallSource {
 	return InstallSourceUnknown
 }
 
-func detectKimiInstallSource(binaryPath string) InstallSource {
-	if source := detectUVToolInstallSource(binaryPath); source != InstallSourceUnknown {
+func detectKimiCodeInstallSource(binaryPath string) InstallSource {
+	if source := detectNPMGlobalInstallSource(binaryPath); source != InstallSourceUnknown {
 		return source
 	}
-	if source := detectCondaInstallSource(binaryPath); source != InstallSourceUnknown {
-		return source
+
+	homeDir, err := os.UserHomeDir()
+	if err == nil {
+		if pathMatchesDir(binaryPath, filepath.Join(homeDir, ".kimi-code", "bin")) {
+			return InstallSourceOfficialScript
+		}
 	}
+
 	return InstallSourceUnknown
 }
 
@@ -194,33 +197,6 @@ func detectNPMGlobalInstallSource(binaryPath string) InstallSource {
 		normalizedPath := filepath.ToSlash(candidatePath)
 		if strings.Contains(normalizedPath, "/node_modules/") {
 			return InstallSourceNPMGlobal
-		}
-	}
-	return InstallSourceUnknown
-}
-
-func detectUVToolInstallSource(binaryPath string) InstallSource {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return InstallSourceUnknown
-	}
-	uvToolsDir := filepath.Join(homeDir, ".local", "share", "uv", "tools")
-	if pathMatchesDir(binaryPath, uvToolsDir) {
-		return InstallSourceUVTool
-	}
-	return InstallSourceUnknown
-}
-
-func detectCondaInstallSource(binaryPath string) InstallSource {
-	for _, candidatePath := range candidatePaths(binaryPath) {
-		normalizedPath := filepath.ToSlash(candidatePath)
-		switch {
-		case strings.Contains(normalizedPath, "/anaconda"):
-			return InstallSourceConda
-		case strings.Contains(normalizedPath, "/miniconda"):
-			return InstallSourceConda
-		case strings.Contains(normalizedPath, "/conda/envs/"):
-			return InstallSourceConda
 		}
 	}
 	return InstallSourceUnknown

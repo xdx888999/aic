@@ -128,18 +128,18 @@
     }
   },
   {
-    "name": "Kimi CLI",
+    "name": "Kimi Code",
     "binary": "kimi",
-    "upgrade_cmd": ["pip3", "install", "--upgrade", "kimi-cli"],
-    "config_paths": ["~/.kimi/"],
+    "upgrade_cmd": ["kimi", "upgrade"],
+    "config_paths": ["~/.kimi-code/config.toml", "~/.kimi-code/"],
     "current_version": {
       "provider": "command",
       "args": ["--version"],
       "parse_strategy": "semver"
     },
     "latest_version": {
-      "provider": "pypi",
-      "target": "kimi-cli",
+      "provider": "npm",
+      "target": "@moonshot-ai/kimi-code",
       "parse_strategy": "semver"
     }
   },

@@ -53,7 +53,7 @@ var lookupNPMGlobalBinDir = detectNPMGlobalBinDir
 
 const (
 	openCodeToolName = "OpenCode"
-	kimiToolName     = "Kimi CLI"
+	kimiCodeToolName = "Kimi Code"
 )
 
 func UpgradeCmd(status detector.Status, index int) tea.Cmd {
@@ -99,8 +99,8 @@ func resolveUpgradeCommand(status detector.Status) []string {
 	switch status.Tool.Name {
 	case openCodeToolName:
 		return resolveOpenCodeUpgradeCommand(status)
-	case kimiToolName:
-		return resolveKimiUpgradeCommand(status)
+	case kimiCodeToolName:
+		return resolveKimiCodeUpgradeCommand(status)
 	default:
 		return append([]string(nil), status.Tool.UpgradeCmd...)
 	}
@@ -138,31 +138,11 @@ func inferOpenCodeUpgradeMethod(source detector.InstallSource) string {
 	return ""
 }
 
-func resolveKimiUpgradeCommand(status detector.Status) []string {
-	switch status.InstallSource {
-	case detector.InstallSourceConda:
-		if pythonCommand := detectSiblingPythonCommand(status.BinaryPath); pythonCommand != "" {
-			return []string{pythonCommand, "-m", "pip", "install", "--upgrade", "kimi-cli"}
-		}
-	case detector.InstallSourceUVTool:
-		return []string{"uv", "tool", "upgrade", "kimi-cli"}
+func resolveKimiCodeUpgradeCommand(status detector.Status) []string {
+	if status.Installed && status.BinaryPath != "" {
+		return []string{status.BinaryPath, "upgrade"}
 	}
 	return append([]string(nil), status.Tool.UpgradeCmd...)
-}
-
-func detectSiblingPythonCommand(binaryPath string) string {
-	binaryDir := filepath.Dir(binaryPath)
-	for _, binaryName := range []string{"python3", "python"} {
-		candidatePath := filepath.Join(binaryDir, binaryName)
-		fileInfo, err := os.Stat(candidatePath)
-		if err != nil {
-			continue
-		}
-		if fileInfo.Mode().IsRegular() && (fileInfo.Mode()&0111) != 0 {
-			return candidatePath
-		}
-	}
-	return ""
 }
 
 func resolveManualUpgradeAppPath(tool registry.Tool) string {
