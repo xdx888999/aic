@@ -17,10 +17,11 @@ import (
 type ErrorCode string
 
 const (
-	ErrorUpgradeNotSupported     ErrorCode = "upgrade_not_supported"
-	ErrorMissingPackageManager   ErrorCode = "missing_package_manager"
-	ErrorUpgradeTargetMismatch   ErrorCode = "upgrade_target_mismatch"
-	ErrorUpgradeTargetUnverified ErrorCode = "upgrade_target_unverified"
+	ErrorUpgradeNotSupported         ErrorCode = "upgrade_not_supported"
+	ErrorMissingPackageManager       ErrorCode = "missing_package_manager"
+	ErrorUpgradeTargetMismatch       ErrorCode = "upgrade_target_mismatch"
+	ErrorUpgradeTargetUnverified     ErrorCode = "upgrade_target_unverified"
+	ErrorOpenCodeMigrationIncomplete ErrorCode = "opencode_migration_incomplete"
 )
 
 type ActionError struct {
@@ -91,6 +92,12 @@ func UpgradeCmd(status detector.Status, index int) tea.Cmd {
 		}
 	}
 
+	if needsOpenCodeMajorUpgrade(status) {
+		return tea.Exec(&openCodeMajorUpgrade{status: status, args: commandArgs}, func(err error) tea.Msg {
+			return UpgradeFinishedMsg{Index: index, Err: err}
+		})
+	}
+
 	c := exec.Command(commandArgs[0], commandArgs[1:]...)
 	return tea.ExecProcess(c, func(err error) tea.Msg {
 		return UpgradeFinishedMsg{Index: index, Err: err}
@@ -98,6 +105,9 @@ func UpgradeCmd(status detector.Status, index int) tea.Cmd {
 }
 
 func resolveUpgradeCommand(status detector.Status) []string {
+	if needsOpenCodeMajorUpgrade(status) {
+		return resolveOpenCodeUpgradeCommand(status)
+	}
 	if status.Installed && status.HomebrewPackage != "" && status.HomebrewPrefix != "" && len(status.Tool.UpgradeCmd) > 0 {
 		kind := ""
 		switch status.InstallSource {
@@ -141,8 +151,10 @@ func resolveOpenCodeUpgradeCommand(status detector.Status) []string {
 	}
 
 	commandArgs := []string{status.BinaryPath, "upgrade"}
-	// 只传入已检测到的新版本，避免扫描失败或旧源数据引起降级。
-	if status.Version != "" && status.LatestVersion != "" && detector.CompareVersions(status.Version, status.LatestVersion) < 0 {
+	// 1.x 的普通 upgrade 拒绝安装 2.x，必须交给官方迁移入口。
+	if needsOpenCodeMajorUpgrade(status) {
+		commandArgs = append(commandArgs, "--major")
+	} else if status.Version != "" && status.LatestVersion != "" && detector.CompareVersions(status.Version, status.LatestVersion) < 0 {
 		commandArgs = append(commandArgs, status.LatestVersion)
 	}
 	if method := inferOpenCodeUpgradeMethod(status.InstallSource); method != "" {
@@ -157,6 +169,8 @@ func inferOpenCodeUpgradeMethod(source detector.InstallSource) string {
 		return "npm"
 	case detector.InstallSourceOfficialScript:
 		return "curl"
+	case detector.InstallSourceHomebrewFormula:
+		return "brew"
 	}
 	return ""
 }

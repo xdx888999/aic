@@ -50,11 +50,12 @@ func builtinTool(t *testing.T, name string) registry.Tool {
 	return registry.Tool{}
 }
 
-func TestDetectOpenCodeUsesMatchingReleaseSeries(t *testing.T) {
+func TestDetectOpenCodeFindsLatestReleaseAcrossMajorVersions(t *testing.T) {
 	for _, tc := range []struct {
 		name, output, current, target, latest string
 	}{
-		{"legacy", "1.19.0", "1.19.0", "opencode-ai", "1.19.5"},
+		{"legacy latest", "1.19.5", "1.19.5", "@opencode/cli", "2.2.2"},
+		{"legacy older", "1.19.0", "1.19.0", "@opencode/cli", "2.2.2"},
 		{"v2", "opencode v2.1.3", "2.1.3", "@opencode/cli", "2.2.2"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -194,10 +195,26 @@ func TestLatestVersionFailuresDoNotInventAVersion(t *testing.T) {
 	}
 }
 
-func TestUnknownOpenCodeVersionDoesNotGuessReleaseSeries(t *testing.T) {
+func TestUnknownOpenCodeVersionStillQueriesCurrentRelease(t *testing.T) {
 	tool := resolveVersionSource(Status{Tool: builtinTool(t, "OpenCode")})
-	if tool.LatestVersion.Provider != registry.LatestVersionProviderNone {
-		t.Fatalf("未知当前版本时不应猜测版本系列: %+v", tool.LatestVersion)
+	if tool.LatestVersion.Provider != registry.LatestVersionProviderNPM || tool.LatestVersion.Target != "@opencode/cli" {
+		t.Fatalf("当前版本读取失败不应阻止查询最新发行版: %+v", tool.LatestVersion)
+	}
+}
+
+func TestLegacyHomebrewTapQueriesV2Formula(t *testing.T) {
+	tool := builtinTool(t, "OpenCode")
+	prefix := t.TempDir()
+	status := Status{
+		Tool: tool, Version: "1.19.5", InstallSource: InstallSourceHomebrewFormula,
+		HomebrewPackage: "anomalyco/tap/opencode", HomebrewPrefix: prefix,
+	}
+	resolved := resolveVersionSource(status)
+	if resolved.LatestVersion.Target != "anomalyco/tap/opencode-v2" || resolved.LatestVersion.Provider != registry.LatestVersionProviderHomebrewFormula {
+		t.Fatalf("旧 tap 应查询可迁移的 v2 formula: %+v", resolved.LatestVersion)
+	}
+	if got := resolved.LatestVersion.Args[len(resolved.LatestVersion.Args)-1]; got != resolved.LatestVersion.Target {
+		t.Fatalf("brew info 查询了旧 formula: %v", resolved.LatestVersion.Args)
 	}
 }
 

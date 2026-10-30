@@ -42,6 +42,8 @@ The project currently focuses on common tools such as:
 
 This README lists common tools only and does not claim full coverage.
 
+OpenCode 1.x installations also detect 2.x releases. Press `u` to migrate using the official upgrade command; older 1.x installers are updated first. Homebrew installations follow their repository, with the legacy `anomalyco/tap/opencode` formula migrating to `anomalyco/tap/opencode-v2`.
+
 ## Command Entry
 
 The intended command entry is:

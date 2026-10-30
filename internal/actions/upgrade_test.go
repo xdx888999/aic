@@ -62,6 +62,8 @@ func TestOpenCodeUpgradeUsesNewerDetectedVersion(t *testing.T) {
 		target                []string
 	}{
 		{"upgrade v2", "2.1.3", "2.2.2", []string{"2.2.2"}},
+		{"migrate v1 to v2", "1.19.5", "2.2.2", []string{"--major"}},
+		{"bootstrap older v1", "1.18.0", "2.2.2", []string{"--major"}},
 		{"keep v1", "1.19.0", "1.19.5", []string{"1.19.5"}},
 		{"stale source", "2.1.3", "1.19.5", nil},
 		{"up to date", "2.2.2", "2.2.2", nil},

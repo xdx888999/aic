@@ -10,6 +10,15 @@
 
 ## [Unreleased]
 
+## [v0.1.7] - 2026-10-30
+
+### Fixed
+
+- 修复 v0.1.6 将 OpenCode 1.x 限制在旧发布源的问题，现在能检测到 2.x 更新
+- OpenCode 1.x 升级到 2.x 使用官方 `upgrade --major` 入口；不支持此参数的旧升级器会先更新自身
+- 官方 Homebrew 旧 tap 查询 `opencode-v2` 的版本，并通过官方迁移流程更换 formula；Homebrew Core 继续使用现有 formula
+- 兼容旧版 OpenCode 将帮助信息写入 stderr；升级后复核实际版本，避免因升级器退出码不准确而误报成功或失败
+
 ## [v0.1.6] - 2026-10-30
 
 ### Added

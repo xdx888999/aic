@@ -148,6 +148,7 @@ var translations = map[Locale]map[string]string{
 		"error_missing_package_manager": "未找到 %s，请先安装",
 		"error_upgrade_target_mismatch": "当前命中的可执行文件 %s 不属于 %s，请先统一安装来源后再升级",
 		"error_upgrade_source_unknown":  "无法确认 %s 的安装位置，已取消升级；请检查该包管理器是否能正常运行",
+		"error_opencode_migration":      "OpenCode 当前版本为 %s，尚未完成到 2.x 的升级，请检查升级输出后重试",
 	},
 	LocaleEnglish: {
 		"stderr_error":                  "Error: %v\n",
@@ -213,5 +214,6 @@ var translations = map[Locale]map[string]string{
 		"error_missing_package_manager": "%s was not found. Please install it first",
 		"error_upgrade_target_mismatch": "The detected executable %s does not belong to %s. Please unify the installation source before upgrading",
 		"error_upgrade_source_unknown":  "Could not verify the %s installation location. Upgrade cancelled; check that the package manager works",
+		"error_opencode_migration":      "OpenCode is still at version %s; migration to 2.x did not complete. Check the upgrade output and retry",
 	},
 }

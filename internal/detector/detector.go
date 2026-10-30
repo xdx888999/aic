@@ -237,19 +237,10 @@ func detectHomebrewInstall(binaryPath string) (InstallSource, string, string) {
 
 func resolveVersionSource(status Status) registry.Tool {
 	tool := status.Tool
-	// OpenCode 1 和 2 使用不同的 npm 包；日常升级保留用户当前的大版本。
+	// 旧包 opencode-ai 停留在 1.x，不能把它的末版当成整个产品的最新版。
 	if tool.Name == "OpenCode" && tool.LatestVersion.Provider == registry.LatestVersionProviderNPM &&
 		(tool.LatestVersion.Target == "opencode-ai" || tool.LatestVersion.Target == "@opencode/cli") {
-		major, err := strconv.Atoi(strings.SplitN(status.Version, ".", 2)[0])
-		switch {
-		case err == nil && major < 2:
-			tool.LatestVersion.Target = "opencode-ai"
-		case err == nil:
-			tool.LatestVersion.Target = "@opencode/cli"
-		default:
-			// 读取不到当前版本时，不猜测它属于哪个发布系列。
-			tool.LatestVersion = registry.VersionSource{}
-		}
+		tool.LatestVersion.Target = "@opencode/cli"
 	}
 	if status.HomebrewPackage != "" && len(tool.UpgradeCmd) > 0 {
 		switch status.InstallSource {
@@ -259,14 +250,18 @@ func resolveVersionSource(status Status) registry.Tool {
 				Target:   status.HomebrewPackage,
 			}
 		case InstallSourceHomebrewFormula:
+			packageName := status.HomebrewPackage
+			if tool.Name == "OpenCode" && packageName == "anomalyco/tap/opencode" {
+				packageName = "anomalyco/tap/opencode-v2"
+			}
 			tool.LatestVersion = registry.VersionSource{
 				Provider: registry.LatestVersionProviderHomebrewFormula,
-				Target:   status.HomebrewPackage,
+				Target:   packageName,
 			}
 			// 第三方 tap 不在 Homebrew 公共 API 中，查询其安装时所属的 brew。
-			if strings.Contains(status.HomebrewPackage, "/") {
+			if strings.Contains(packageName, "/") {
 				tool.LatestVersion.Args = []string{
-					filepath.Join(status.HomebrewPrefix, "bin", "brew"), "info", "--json=v2", "--formula", status.HomebrewPackage,
+					filepath.Join(status.HomebrewPrefix, "bin", "brew"), "info", "--json=v2", "--formula", packageName,
 				}
 			}
 		}
