@@ -393,6 +393,8 @@ func (m Model) formatUpgradeError(err error) string {
 			return m.localizer.Text("upgrade_failed", m.localizer.Text("error_missing_package_manager", actionErr.Arg))
 		case actions.ErrorUpgradeTargetMismatch:
 			return m.localizer.Text("upgrade_failed", m.localizer.Text("error_upgrade_target_mismatch", actionErr.Arg, m.localizer.Text(actionErr.Hint)))
+		case actions.ErrorUpgradeTargetUnverified:
+			return m.localizer.Text("upgrade_failed", m.localizer.Text("error_upgrade_source_unknown", actionErr.Arg))
 		}
 	}
 	return m.localizer.Text("upgrade_failed", err)

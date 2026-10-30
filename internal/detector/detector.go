@@ -1,6 +1,7 @@
 package detector
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -31,20 +32,24 @@ var versionTokenRe = regexp.MustCompile(`\d+|[A-Za-z]+`)
 type InstallSource string
 
 const (
-	InstallSourceUnknown        InstallSource = ""
-	InstallSourceNPMGlobal      InstallSource = "npm_global"
-	InstallSourceOfficialScript InstallSource = "official_script"
+	InstallSourceUnknown         InstallSource = ""
+	InstallSourceNPMGlobal       InstallSource = "npm_global"
+	InstallSourceOfficialScript  InstallSource = "official_script"
+	InstallSourceHomebrewFormula InstallSource = "homebrew_formula"
+	InstallSourceHomebrewCask    InstallSource = "homebrew_cask"
 )
 
 type Status struct {
-	Tool          registry.Tool
-	Installed     bool
-	BinaryPath    string
-	InstallSource InstallSource
-	Version       string
-	LatestVersion string
-	HasConfig     bool
-	ConfigPath    string
+	Tool            registry.Tool
+	Installed       bool
+	BinaryPath      string
+	InstallSource   InstallSource
+	HomebrewPackage string
+	HomebrewPrefix  string
+	Version         string
+	LatestVersion   string
+	HasConfig       bool
+	ConfigPath      string
 }
 
 func expandHome(path string) string {
@@ -69,14 +74,16 @@ func Detect(tool registry.Tool) Status {
 	status.Installed = true
 	status.BinaryPath = binaryPath
 	status.InstallSource = detectInstallSource(tool, binaryPath)
-	status.Version = detectCurrentVersion(tool)
+	_, status.HomebrewPackage, status.HomebrewPrefix = detectHomebrewInstall(binaryPath)
+	status.Version = detectCurrentVersion(tool, binaryPath)
 	status.HasConfig, status.ConfigPath = detectConfig(tool.ConfigPaths)
-	status.LatestVersion = fetchLatest(tool)
+	status.Tool = resolveVersionSource(status)
+	status.LatestVersion = fetchLatest(status.Tool)
 
 	return status
 }
 
-func detectCurrentVersion(tool registry.Tool) string {
+func detectCurrentVersion(tool registry.Tool, binaryPath string) string {
 	switch tool.CurrentVersion.Provider {
 	case registry.CurrentVersionProviderAppBundle:
 		version := readAppBundleVersion(tool.CurrentVersion.Paths)
@@ -84,12 +91,15 @@ func detectCurrentVersion(tool registry.Tool) string {
 			return registry.ParseVersion(version, tool.CurrentVersion.ParseStrategy)
 		}
 		if len(tool.CurrentVersion.Args) > 0 {
-			return readCommandVersion(tool.Binary, tool.CurrentVersion.Args, tool.CurrentVersion.ParseStrategy)
+			return readCommandVersion(binaryPath, tool.CurrentVersion.Args, tool.CurrentVersion.ParseStrategy)
 		}
 	case registry.CurrentVersionProviderNPMGlobal:
-		return readNPMGlobalVersion(tool.CurrentVersion)
+		if version := readInstalledNPMVersion(binaryPath, tool.CurrentVersion); version != "" {
+			return version
+		}
+		return readCommandVersion(binaryPath, []string{"--version"}, tool.CurrentVersion.ParseStrategy)
 	case "", registry.CurrentVersionProviderCommand:
-		return readCommandVersion(tool.Binary, tool.CurrentVersion.Args, tool.CurrentVersion.ParseStrategy)
+		return readCommandVersion(binaryPath, tool.CurrentVersion.Args, tool.CurrentVersion.ParseStrategy)
 	}
 	return ""
 }
@@ -99,11 +109,38 @@ func readCommandVersion(binary string, args []string, parseStrategy string) stri
 	defer cancel()
 
 	command := exec.CommandContext(ctx, binary, args...)
-	output, err := command.CombinedOutput()
-	if err != nil || len(output) == 0 {
+	var stderr bytes.Buffer
+	command.Stderr = &stderr
+	output, err := command.Output()
+	if err != nil {
 		return ""
 	}
+	// 启动警告可能先于版本写入 stderr，不能把两条输出流混为版本号。
+	if len(bytes.TrimSpace(output)) == 0 {
+		output = stderr.Bytes()
+	}
 	return registry.ParseVersion(string(output), parseStrategy)
+}
+
+func readInstalledNPMVersion(binaryPath string, source registry.VersionSource) string {
+	resolved, err := filepath.EvalSymlinks(binaryPath)
+	if err != nil || source.Target == "" {
+		return ""
+	}
+	for dir := filepath.Dir(resolved); dir != filepath.Dir(dir); dir = filepath.Dir(dir) {
+		content, err := os.ReadFile(filepath.Join(dir, "package.json"))
+		if err != nil {
+			continue
+		}
+		var manifest struct {
+			Name    string `json:"name"`
+			Version string `json:"version"`
+		}
+		if json.Unmarshal(content, &manifest) == nil && manifest.Name == source.Target {
+			return registry.ParseVersion(manifest.Version, source.ParseStrategy)
+		}
+	}
+	return ""
 }
 
 func readAppBundleVersion(paths []string) string {
@@ -152,6 +189,10 @@ func detectConfig(paths []string) (bool, string) {
 }
 
 func detectInstallSource(tool registry.Tool, binaryPath string) InstallSource {
+	// Homebrew 的 Node 工具也包含 node_modules，必须先判断实际所属的包。
+	if source, _, _ := detectHomebrewInstall(binaryPath); source != InstallSourceUnknown {
+		return source
+	}
 	switch tool.Name {
 	case "OpenCode":
 		return detectOpenCodeInstallSource(binaryPath)
@@ -160,6 +201,77 @@ func detectInstallSource(tool registry.Tool, binaryPath string) InstallSource {
 	default:
 		return detectNPMGlobalInstallSource(binaryPath)
 	}
+}
+
+func detectHomebrewInstall(binaryPath string) (InstallSource, string, string) {
+	for _, candidate := range candidatePaths(binaryPath) {
+		for _, entry := range []struct {
+			directory string
+			source    InstallSource
+		}{
+			{"Cellar", InstallSourceHomebrewFormula},
+			{"Caskroom", InstallSourceHomebrewCask},
+		} {
+			marker := string(os.PathSeparator) + entry.directory + string(os.PathSeparator)
+			prefix, remainder, ok := strings.Cut(candidate, marker)
+			parts := strings.Split(remainder, string(os.PathSeparator))
+			if ok && prefix != "" && len(parts) >= 3 && parts[0] != "" && parts[1] != "" {
+				packageName := parts[0]
+				if entry.source == InstallSourceHomebrewFormula {
+					var receipt struct {
+						Source struct {
+							Tap string `json:"tap"`
+						} `json:"source"`
+					}
+					content, err := os.ReadFile(filepath.Join(prefix, entry.directory, parts[0], parts[1], "INSTALL_RECEIPT.json"))
+					if err == nil && json.Unmarshal(content, &receipt) == nil && receipt.Source.Tap != "" && receipt.Source.Tap != "homebrew/core" {
+						packageName = receipt.Source.Tap + "/" + packageName
+					}
+				}
+				return entry.source, packageName, prefix
+			}
+		}
+	}
+	return InstallSourceUnknown, "", ""
+}
+
+func resolveVersionSource(status Status) registry.Tool {
+	tool := status.Tool
+	// OpenCode 1 和 2 使用不同的 npm 包；日常升级保留用户当前的大版本。
+	if tool.Name == "OpenCode" && tool.LatestVersion.Provider == registry.LatestVersionProviderNPM &&
+		(tool.LatestVersion.Target == "opencode-ai" || tool.LatestVersion.Target == "@opencode/cli") {
+		major, err := strconv.Atoi(strings.SplitN(status.Version, ".", 2)[0])
+		switch {
+		case err == nil && major < 2:
+			tool.LatestVersion.Target = "opencode-ai"
+		case err == nil:
+			tool.LatestVersion.Target = "@opencode/cli"
+		default:
+			// 读取不到当前版本时，不猜测它属于哪个发布系列。
+			tool.LatestVersion = registry.VersionSource{}
+		}
+	}
+	if status.HomebrewPackage != "" && len(tool.UpgradeCmd) > 0 {
+		switch status.InstallSource {
+		case InstallSourceHomebrewCask:
+			tool.LatestVersion = registry.VersionSource{
+				Provider: registry.LatestVersionProviderHomebrewCask,
+				Target:   status.HomebrewPackage,
+			}
+		case InstallSourceHomebrewFormula:
+			tool.LatestVersion = registry.VersionSource{
+				Provider: registry.LatestVersionProviderHomebrewFormula,
+				Target:   status.HomebrewPackage,
+			}
+			// 第三方 tap 不在 Homebrew 公共 API 中，查询其安装时所属的 brew。
+			if strings.Contains(status.HomebrewPackage, "/") {
+				tool.LatestVersion.Args = []string{
+					filepath.Join(status.HomebrewPrefix, "bin", "brew"), "info", "--json=v2", "--formula", status.HomebrewPackage,
+				}
+			}
+		}
+	}
+	return tool
 }
 
 func detectOpenCodeInstallSource(binaryPath string) InstallSource {
@@ -193,7 +305,16 @@ func detectKimiCodeInstallSource(binaryPath string) InstallSource {
 }
 
 func detectNPMGlobalInstallSource(binaryPath string) InstallSource {
-	for _, candidatePath := range candidatePaths(binaryPath) {
+	paths := candidatePaths(binaryPath)
+	for _, candidatePath := range paths {
+		normalizedPath := filepath.ToSlash(candidatePath)
+		// 这些包管理器也使用 node_modules，交给工具自身识别，不能强制当作 npm。
+		if strings.Contains(normalizedPath, "/.bun/") || strings.Contains(normalizedPath, "/pnpm/") ||
+			strings.Contains(normalizedPath, "/.pnpm/") || strings.Contains(normalizedPath, "/yarn/") {
+			return InstallSourceUnknown
+		}
+	}
+	for _, candidatePath := range paths {
 		normalizedPath := filepath.ToSlash(candidatePath)
 		if strings.Contains(normalizedPath, "/node_modules/") {
 			return InstallSourceNPMGlobal
@@ -258,6 +379,8 @@ func fetchLatest(tool registry.Tool) string {
 		return fetchGitHubLatest(tool.LatestVersion)
 	case registry.LatestVersionProviderHomebrewCask:
 		return fetchHomebrewCaskLatest(tool.LatestVersion)
+	case registry.LatestVersionProviderHomebrewFormula:
+		return fetchHomebrewFormulaLatest(tool.LatestVersion)
 	default:
 		return ""
 	}
@@ -347,12 +470,39 @@ func fetchHomebrewCaskLatest(source registry.VersionSource) string {
 	return registry.ParseVersion(data.Version, source.ParseStrategy)
 }
 
+func fetchHomebrewFormulaLatest(source registry.VersionSource) string {
+	if len(source.Args) > 0 {
+		var data struct {
+			Formulae []struct {
+				Versions struct {
+					Stable string `json:"stable"`
+				} `json:"versions"`
+			} `json:"formulae"`
+		}
+		output := runCommand(source.Args[0], source.Args[1:])
+		if json.Unmarshal([]byte(output), &data) != nil || len(data.Formulae) != 1 {
+			return ""
+		}
+		return registry.ParseVersion(data.Formulae[0].Versions.Stable, source.ParseStrategy)
+	}
+	url := fmt.Sprintf("https://formulae.brew.sh/api/formula/%s.json", source.Target)
+	var data struct {
+		Versions struct {
+			Stable string `json:"stable"`
+		} `json:"versions"`
+	}
+	if err := fetchJSON(url, source.Headers, &data); err != nil {
+		return ""
+	}
+	return registry.ParseVersion(data.Versions.Stable, source.ParseStrategy)
+}
+
 func runCommand(binary string, args []string) string {
 	ctx, cancel := context.WithTimeout(context.Background(), latestVersionTimeout)
 	defer cancel()
 
 	command := exec.CommandContext(ctx, binary, args...)
-	output, err := command.CombinedOutput()
+	output, err := command.Output()
 	if err != nil || len(output) == 0 {
 		return ""
 	}

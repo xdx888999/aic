@@ -230,6 +230,7 @@ func TestResolveUpgradeCommandUsesCurrentBinaryForKimiCode(t *testing.T) {
 		BinaryPath: binaryPath,
 		Tool: registry.Tool{
 			Name:       "Kimi Code",
+			Binary:     "kimi",
 			UpgradeCmd: []string{"kimi", "upgrade"},
 		},
 	}

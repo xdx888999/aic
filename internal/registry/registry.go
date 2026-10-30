@@ -23,21 +23,23 @@ const (
 )
 
 const (
-	LatestVersionProviderNone          = ""
-	LatestVersionProviderNPM           = "npm"
-	LatestVersionProviderNPMDistTag    = "npm_dist_tag"
-	LatestVersionProviderPyPI          = "pypi"
-	LatestVersionProviderGitHubRelease = "github_release"
-	LatestVersionProviderHomebrewCask  = "homebrew_cask"
+	LatestVersionProviderNone            = ""
+	LatestVersionProviderNPM             = "npm"
+	LatestVersionProviderNPMDistTag      = "npm_dist_tag"
+	LatestVersionProviderPyPI            = "pypi"
+	LatestVersionProviderGitHubRelease   = "github_release"
+	LatestVersionProviderHomebrewCask    = "homebrew_cask"
+	LatestVersionProviderHomebrewFormula = "homebrew_formula"
 )
 
 type Tool struct {
-	Name           string        `json:"name"`
-	Binary         string        `json:"binary"`
-	UpgradeCmd     []string      `json:"upgrade_cmd"`
-	ConfigPaths    []string      `json:"config_paths"`
-	CurrentVersion VersionSource `json:"current_version"`
-	LatestVersion  VersionSource `json:"latest_version"`
+	Name             string        `json:"name"`
+	Binary           string        `json:"binary"`
+	UpgradeCmd       []string      `json:"upgrade_cmd"`
+	NativeUpgradeCmd []string      `json:"native_upgrade_cmd,omitempty"`
+	ConfigPaths      []string      `json:"config_paths"`
+	CurrentVersion   VersionSource `json:"current_version"`
+	LatestVersion    VersionSource `json:"latest_version"`
 }
 
 type VersionSource struct {
@@ -167,7 +169,7 @@ func DisplayLatestVersionProvider(provider string) string {
 		return "PyPI"
 	case LatestVersionProviderGitHubRelease:
 		return "GitHub"
-	case LatestVersionProviderHomebrewCask:
+	case LatestVersionProviderHomebrewCask, LatestVersionProviderHomebrewFormula:
 		return "Homebrew"
 	default:
 		return ""

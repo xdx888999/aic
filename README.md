@@ -34,11 +34,17 @@
 - `Aider`
 - `Qwen Code`
 - `Kimi Code`
+- `OpenCode`
+- `Grok Build`
 - `Cursor`
 - `Windsurf`
 - `Trae Agent`
 
 README 只列出常见工具，不承诺覆盖所有工具。
+
+升级会根据命中的可执行文件选择安装渠道：Homebrew 安装使用对应的 formula / cask，npm 安装继续使用 npm，支持原生安装的工具使用自身的升级命令。OpenCode 1.x 与 2.x 分别查询各自的发布源；Homebrew 安装以其仓库提供的版本为准。
+
+升级方式的核对记录见 [升级支持说明](./docs/upgrade-support.md)。
 
 ## 命令入口
 

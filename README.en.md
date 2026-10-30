@@ -34,6 +34,8 @@ The project currently focuses on common tools such as:
 - `Aider`
 - `Qwen Code`
 - `Kimi Code`
+- `OpenCode`
+- `Grok Build`
 - `Cursor`
 - `Windsurf`
 - `Trae Agent`

@@ -10,6 +10,20 @@
 
 ## [Unreleased]
 
+## [v0.1.6] - 2026-10-30
+
+### Added
+
+- 新增 Grok Build 检测、版本查询、配置入口和升级支持，区分 Homebrew、npm 与原生安装
+
+### Fixed
+
+- OpenCode 根据当前版本选择 `opencode-ai`（1.x）或 `@opencode/cli`（2.x），升级时向当前可执行文件传入已检测到的新版本
+- Homebrew 安装按实际 formula / cask 和所属安装目录查询版本、执行升级，避免误用 npm；保留第三方 tap 的完整包名
+- 补齐 Claude Code、Codex CLI、Qwen Code、Kilo Code 原生安装的升级命令
+- 当前版本读取不再混入 stderr 启动警告；Gemini 读取实际命中的包版本，避免受到另一套全局 npm 环境影响
+- npm 安装目录查询增加超时，无法验证升级目标时明确报错并取消升级
+
 ## [v0.1.5] - 2026-06-13
 
 ### Changed

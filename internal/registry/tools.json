@@ -3,6 +3,7 @@
     "name": "Claude Code",
     "binary": "claude",
     "upgrade_cmd": ["npm", "install", "-g", "@anthropic-ai/claude-code@latest", "--registry=https://registry.npmjs.org"],
+    "native_upgrade_cmd": ["claude", "update"],
     "config_paths": ["~/.claude/settings.json", "~/.claude/"],
     "current_version": {
       "provider": "command",
@@ -19,6 +20,7 @@
     "name": "Codex CLI",
     "binary": "codex",
     "upgrade_cmd": ["npm", "install", "-g", "@openai/codex@latest", "--registry=https://registry.npmjs.org"],
+    "native_upgrade_cmd": ["codex", "update"],
     "config_paths": ["~/.config/codex/", "~/.codex/"],
     "current_version": {
       "provider": "command",
@@ -147,6 +149,7 @@
     "name": "Kilo Code",
     "binary": "kilo",
     "upgrade_cmd": ["npm", "install", "-g", "@kilocode/cli@latest", "--registry=https://registry.npmjs.org"],
+    "native_upgrade_cmd": ["kilo", "upgrade"],
     "config_paths": ["~/.config/kilo/", "~/.kilo/"],
     "current_version": {
       "provider": "command",
@@ -162,8 +165,8 @@
   {
     "name": "OpenCode",
     "binary": "opencode",
-    "upgrade_cmd": ["npm", "install", "-g", "opencode-ai@latest", "--registry=https://registry.npmjs.org"],
-    "config_paths": ["~/.opencode/", "~/.local/share/opencode/"],
+    "upgrade_cmd": ["opencode", "upgrade"],
+    "config_paths": ["~/.config/opencode/", "~/.opencode/", "~/.local/share/opencode/"],
     "current_version": {
       "provider": "command",
       "args": ["--version"],
@@ -171,7 +174,24 @@
     },
     "latest_version": {
       "provider": "npm",
-      "target": "opencode-ai",
+      "target": "@opencode/cli",
+      "parse_strategy": "semver"
+    }
+  },
+  {
+    "name": "Grok Build",
+    "binary": "grok",
+    "upgrade_cmd": ["npm", "install", "-g", "@xai-official/grok@latest", "--registry=https://registry.npmjs.org"],
+    "native_upgrade_cmd": ["grok", "update"],
+    "config_paths": ["~/.grok/config.toml", "~/.grok/"],
+    "current_version": {
+      "provider": "command",
+      "args": ["--version"],
+      "parse_strategy": "semver"
+    },
+    "latest_version": {
+      "provider": "npm",
+      "target": "@xai-official/grok",
       "parse_strategy": "semver"
     }
   },
@@ -179,6 +199,7 @@
     "name": "Qwen Code",
     "binary": "qwen",
     "upgrade_cmd": ["npm", "install", "-g", "@qwen-code/qwen-code@latest", "--registry=https://registry.npmjs.org"],
+    "native_upgrade_cmd": ["qwen", "update"],
     "config_paths": ["~/.config/qwen/"],
     "current_version": {
       "provider": "command",

@@ -147,6 +147,7 @@ var translations = map[Locale]map[string]string{
 		"error_upgrade_not_supported":   "该工具不支持命令行升级",
 		"error_missing_package_manager": "未找到 %s，请先安装",
 		"error_upgrade_target_mismatch": "当前命中的可执行文件 %s 不属于 %s，请先统一安装来源后再升级",
+		"error_upgrade_source_unknown":  "无法确认 %s 的安装位置，已取消升级；请检查该包管理器是否能正常运行",
 	},
 	LocaleEnglish: {
 		"stderr_error":                  "Error: %v\n",
@@ -211,5 +212,6 @@ var translations = map[Locale]map[string]string{
 		"error_upgrade_not_supported":   "This tool does not support command-line upgrades",
 		"error_missing_package_manager": "%s was not found. Please install it first",
 		"error_upgrade_target_mismatch": "The detected executable %s does not belong to %s. Please unify the installation source before upgrading",
+		"error_upgrade_source_unknown":  "Could not verify the %s installation location. Upgrade cancelled; check that the package manager works",
 	},
 }

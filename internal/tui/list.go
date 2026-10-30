@@ -232,7 +232,7 @@ func renderSourceCell(tool detector.Status, localizer i18n.Localizer) (string, l
 		return sourceText, pypiSourceStyle
 	case registry.LatestVersionProviderGitHubRelease:
 		return sourceText, gitHubSourceStyle
-	case registry.LatestVersionProviderHomebrewCask:
+	case registry.LatestVersionProviderHomebrewCask, registry.LatestVersionProviderHomebrewFormula:
 		return sourceText, homebrewSourceStyle
 	default:
 		return sourceText, noSourceStyle

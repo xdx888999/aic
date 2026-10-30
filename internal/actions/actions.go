@@ -1,11 +1,13 @@
 package actions
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/xdx888999/aic/internal/detector"
@@ -15,9 +17,10 @@ import (
 type ErrorCode string
 
 const (
-	ErrorUpgradeNotSupported   ErrorCode = "upgrade_not_supported"
-	ErrorMissingPackageManager ErrorCode = "missing_package_manager"
-	ErrorUpgradeTargetMismatch ErrorCode = "upgrade_target_mismatch"
+	ErrorUpgradeNotSupported     ErrorCode = "upgrade_not_supported"
+	ErrorMissingPackageManager   ErrorCode = "missing_package_manager"
+	ErrorUpgradeTargetMismatch   ErrorCode = "upgrade_target_mismatch"
+	ErrorUpgradeTargetUnverified ErrorCode = "upgrade_target_unverified"
 )
 
 type ActionError struct {
@@ -53,7 +56,6 @@ var lookupNPMGlobalBinDir = detectNPMGlobalBinDir
 
 const (
 	openCodeToolName = "OpenCode"
-	kimiCodeToolName = "Kimi Code"
 )
 
 func UpgradeCmd(status detector.Status, index int) tea.Cmd {
@@ -96,13 +98,30 @@ func UpgradeCmd(status detector.Status, index int) tea.Cmd {
 }
 
 func resolveUpgradeCommand(status detector.Status) []string {
+	if status.Installed && status.HomebrewPackage != "" && status.HomebrewPrefix != "" && len(status.Tool.UpgradeCmd) > 0 {
+		kind := ""
+		switch status.InstallSource {
+		case detector.InstallSourceHomebrewFormula:
+			kind = "--formula"
+		case detector.InstallSourceHomebrewCask:
+			kind = "--cask"
+		}
+		if kind != "" {
+			return []string{filepath.Join(status.HomebrewPrefix, "bin", "brew"), "upgrade", kind, status.HomebrewPackage}
+		}
+	}
 	switch status.Tool.Name {
 	case openCodeToolName:
 		return resolveOpenCodeUpgradeCommand(status)
-	case kimiCodeToolName:
-		return resolveKimiCodeUpgradeCommand(status)
 	default:
-		return append([]string(nil), status.Tool.UpgradeCmd...)
+		commandArgs := append([]string(nil), status.Tool.UpgradeCmd...)
+		if status.Installed && status.InstallSource != detector.InstallSourceNPMGlobal && len(status.Tool.NativeUpgradeCmd) > 0 {
+			commandArgs = append([]string(nil), status.Tool.NativeUpgradeCmd...)
+		}
+		if status.Installed && status.BinaryPath != "" && len(commandArgs) > 0 && commandArgs[0] == status.Tool.Binary {
+			commandArgs[0] = status.BinaryPath
+		}
+		return commandArgs
 	}
 }
 
@@ -122,6 +141,10 @@ func resolveOpenCodeUpgradeCommand(status detector.Status) []string {
 	}
 
 	commandArgs := []string{status.BinaryPath, "upgrade"}
+	// 只传入已检测到的新版本，避免扫描失败或旧源数据引起降级。
+	if status.Version != "" && status.LatestVersion != "" && detector.CompareVersions(status.Version, status.LatestVersion) < 0 {
+		commandArgs = append(commandArgs, status.LatestVersion)
+	}
 	if method := inferOpenCodeUpgradeMethod(status.InstallSource); method != "" {
 		commandArgs = append(commandArgs, "--method", method)
 	}
@@ -136,13 +159,6 @@ func inferOpenCodeUpgradeMethod(source detector.InstallSource) string {
 		return "curl"
 	}
 	return ""
-}
-
-func resolveKimiCodeUpgradeCommand(status detector.Status) []string {
-	if status.Installed && status.BinaryPath != "" {
-		return []string{status.BinaryPath, "upgrade"}
-	}
-	return append([]string(nil), status.Tool.UpgradeCmd...)
 }
 
 func resolveManualUpgradeAppPath(tool registry.Tool) string {
@@ -175,11 +191,12 @@ func validateUpgradeTarget(status detector.Status, commandArgs []string) error {
 		return nil
 	}
 
-	switch commandArgs[0] {
-	case "npm":
+	usesNPM := commandArgs[0] == "npm" ||
+		(status.Tool.Name == openCodeToolName && status.InstallSource == detector.InstallSourceNPMGlobal)
+	if usesNPM {
 		globalBinDir, err := lookupNPMGlobalBinDir()
 		if err != nil || globalBinDir == "" {
-			return nil
+			return ActionError{Code: ErrorUpgradeTargetUnverified, Arg: "npm"}
 		}
 		if isPathWithinDir(status.BinaryPath, globalBinDir) {
 			return nil
@@ -189,13 +206,14 @@ func validateUpgradeTarget(status detector.Status, commandArgs []string) error {
 			Arg:  status.BinaryPath,
 			Hint: "npm_global",
 		}
-	default:
-		return nil
 	}
+	return nil
 }
 
 func detectNPMGlobalBinDir() (string, error) {
-	command := exec.Command("npm", "prefix", "-g")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	command := exec.CommandContext(ctx, "npm", "prefix", "-g")
 	output, err := command.Output()
 	if err != nil {
 		return "", err
