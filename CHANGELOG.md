@@ -10,6 +10,13 @@
 
 ## [Unreleased]
 
+## [v0.1.8] - 2026-11-22
+
+### Fixed
+
+- 通过 `kiro-cli` 识别 Kiro CLI 并显示当前版本，避免将编辑器的 `kiro` 命令误判为 CLI
+- Kiro CLI 的配置入口指向 `~/.kiro/settings/cli.json`。Homebrew 安装使用对应的 cask 查询版本和升级，原生安装使用 `kiro-cli update`
+
 ## [v0.1.7] - 2026-10-30
 
 ### Fixed

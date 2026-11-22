@@ -295,9 +295,9 @@
   },
   {
     "name": "Kiro CLI",
-    "binary": "kiro",
-    "upgrade_cmd": [],
-    "config_paths": ["~/.aws/"],
+    "binary": "kiro-cli",
+    "upgrade_cmd": ["kiro-cli", "update"],
+    "config_paths": ["~/.kiro/settings/cli.json"],
     "current_version": {
       "provider": "command",
       "args": ["--version"],

@@ -101,6 +101,41 @@ func TestDetectGrokBuildInstalledByHomebrew(t *testing.T) {
 	}
 }
 
+func TestDetectKiroCLI(t *testing.T) {
+	tool := builtinTool(t, "Kiro CLI")
+	binDir := filepath.Join(t.TempDir(), "Caskroom", "kiro-cli", "3.5.0", "kirocli", "bin")
+	binaryPath := filepath.Join(binDir, "kiro-cli")
+	writeExecutable(t, binaryPath, "test \"$1\" = '--version' && echo 'kiro-cli 3.5.0'\n")
+	t.Setenv("PATH", binDir)
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	settings := filepath.Join(home, ".kiro", "settings", "cli.json")
+	if err := os.MkdirAll(filepath.Dir(settings), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(settings, []byte("{}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	mockVersionResponse(t, "https://formulae.brew.sh/api/cask/kiro-cli.json", http.StatusOK, `{"version":"3.5.1"}`)
+
+	status := Detect(tool)
+	if !status.Installed || status.BinaryPath != binaryPath || status.Version != "3.5.0" || status.ConfigPath != settings {
+		t.Fatalf("未正确识别 Kiro CLI 的命令、版本或配置: %+v", status)
+	}
+	if status.InstallSource != InstallSourceHomebrewCask || status.HomebrewPackage != "kiro-cli" || status.LatestVersion != "3.5.1" {
+		t.Fatalf("未从 Kiro CLI 所属的 Homebrew cask 检测更新: %+v", status)
+	}
+}
+
+func TestKiroEditorDoesNotCountAsCLI(t *testing.T) {
+	binDir := t.TempDir()
+	writeExecutable(t, filepath.Join(binDir, "kiro"), "echo '0.1.0'\n")
+	t.Setenv("PATH", binDir)
+	if Detect(builtinTool(t, "Kiro CLI")).Installed {
+		t.Fatal("仅安装 kiro 编辑器命令时不应显示 Kiro CLI 已安装")
+	}
+}
+
 func TestReadCommandVersionSeparatesWarningsFromVersion(t *testing.T) {
 	for _, tc := range []struct{ name, script, expected string }{
 		{"warning before stdout", "echo 'WARNING: unable to create PATH aliases' >&2\necho 'codex-cli 0.165.0'\n", "0.165.0"},
